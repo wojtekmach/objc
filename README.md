@@ -1,12 +1,12 @@
-# C
+# ObjC
 
-Easily use C code in your Elixir projects.
+Easily use ObjC code in your Elixir projects.
 
 See [examples/hello/lib/hello.ex](examples/hello/lib/hello.ex).
 
 ## License
 
-Copyright 2021 Wojtek Mach
+Copyright 2023 Wojtek Mach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
