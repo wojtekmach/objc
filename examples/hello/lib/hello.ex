@@ -1,35 +1,32 @@
 defmodule Hello do
-  use ObjC, compile: "-lobjc -framework AVFoundation"
+  use ObjC, compile: "-lobjc -framework AppKit"
 
   defobjc(:hello, 0, ~S"""
-  // #ifdef DARWIN
-  #import "AVFoundation/AVFoundation.h"
+  #import "AppKit/AppKit.h"
 
-  void request_permission() {
-      if ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] == AVAuthorizationStatusAuthorized) {
-          printf("mic authorized\n");
-      }
-      else {
-          printf("mic not authorized\n");
-      }
+  extern int erl_drv_steal_main_thread(char *name, ErlNifTid *dtid, void* (*func)(void*), void* arg, ErlNifThreadOpts *opts);
+  extern int erl_drv_stolen_main_thread_join(ErlNifTid tid, void **respp);
 
-      [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) {
-          if (granted) {
-              printf("mic granted\n");
-          }
-          else {
-              printf("mic not granted\n");
-          }
-      }];
+  ErlNifTid hello_thread;
+
+  void *hello_main_loop(void * _unused)
+  {
+      [NSAutoreleasePool new];
+      [NSApplication sharedApplication];
+      [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+      [NSApp activateIgnoringOtherApps:YES];
+      NSAlert *alert = [[NSAlert alloc] init];
+      [alert setMessageText:@"Hello from ObjC!"];
+      [alert addButtonWithTitle:@"OK"];
+      [alert runModal];
+      return NULL;
   }
-  // #else
-  // void request_permission() {}
-  // #endif
 
   static ERL_NIF_TERM hello(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   {
-      request_permission();
-      return enif_make_string(env, "Hello world!", ERL_NIF_LATIN1);
+      erl_drv_steal_main_thread((char *)"hello", &hello_thread, hello_main_loop, (void *)NULL, NULL);
+      erl_drv_stolen_main_thread_join(hello_thread, NULL);
+      return enif_make_atom(env, "ok");
   }
   """)
 end
