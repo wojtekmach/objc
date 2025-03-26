@@ -3,12 +3,9 @@ defmodule Hello do
 
   defobjc(:hello, 0, ~S"""
   #import "AppKit/AppKit.h"
-
   extern int erl_drv_steal_main_thread(char *name, ErlNifTid *dtid, void* (*func)(void*), void* arg, ErlNifThreadOpts *opts);
   extern int erl_drv_stolen_main_thread_join(ErlNifTid tid, void **respp);
-
   ErlNifTid hello_thread;
-
   void *hello_main_loop(void * _unused)
   {
       [NSAutoreleasePool new];
@@ -18,6 +15,8 @@ defmodule Hello do
       NSAlert *alert = [[NSAlert alloc] init];
       [alert setMessageText:@"Hello from ObjC!"];
       [alert addButtonWithTitle:@"OK"];
+      [[alert window] setLevel:NSFloatingWindowLevel];
+      [[alert window] makeKeyAndOrderFront:nil];
       [alert runModal];
       return NULL;
   }
